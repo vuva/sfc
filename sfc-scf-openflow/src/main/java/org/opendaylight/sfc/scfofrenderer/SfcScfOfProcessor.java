@@ -143,7 +143,13 @@ public class SfcScfOfProcessor {
                 // THis is only for testing H-SFC
                 Ace1 ace1 = ace.getAugmentation(Ace1.class);
                 Match match;
-                boolean isSubDomain= ace1.isSubDomain();
+                boolean isSubDomain = false;
+                if (ace1 == null) {
+                    LOG.error("createdServiceFunctionClassifier: ace augment is null\n");
+                    continue;
+                }else{
+                    isSubDomain = ace1.isSubDomain();
+                }
                 if (isSubDomain) {
                     match = new SfcScfMatch()
                             .setAclMatch(ace.getMatches())
