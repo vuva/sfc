@@ -200,7 +200,7 @@ public class SfcScfOfProcessor {
 
                 //For H-SFC
                 boolean createResult = isSubDomain?
-                        SfcScfOfUtils.createSubDomainClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort)
+                        SfcScfOfUtils.createClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort)
                         :SfcScfOfUtils.createClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort);
                 if (!createResult) {
                     LOG.error("createdServiceFunctionClassifier: out flow is null\n");
