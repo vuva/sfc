@@ -10,11 +10,13 @@ package org.opendaylight.sfc.scfofrenderer;
 
 
 import java.util.List;
+
 import org.opendaylight.sfc.provider.api.SfcProviderAclAPI;
 import org.opendaylight.sfc.provider.api.SfcProviderServiceForwarderAPI;
 import org.opendaylight.sfc.sfc_ovs.provider.SfcOvsUtil;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.acl.rev151001.access.lists.acl.access.list.entries.ace.actions.sfc.action.AclRenderedServicePath;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.acl.rev151001.Ace1;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.acl.rev151001.Actions1;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.acl.rev151001.access.lists.acl.access.list.entries.ace.actions.sfc.action.AclRenderedServicePath;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.RspName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.scf.rev140701.attachment.point.attachment.point.type.Interface;
@@ -138,16 +140,26 @@ public class SfcScfOfProcessor {
                     continue;
                 }
 
-                StringBuffer sb = new StringBuffer();
-                sb.append(nodeName).append(":");
-                sb.append(String.valueOf(inPort));
-                NodeConnectorId port = new NodeConnectorId(sb.toString());
+                // THis is only for testing H-SFC
+                Ace1 ace1 = ace.getAugmentation(Ace1.class);
+                Match match;
+                boolean isSubDomain= ace1.isSubDomain();
+                if (isSubDomain) {
+                    match = new SfcScfMatch()
+                            .setAclMatch(ace.getMatches())
+                            .build();
+                }else{
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(nodeName).append(":");
+                    sb.append(String.valueOf(inPort));
+                    NodeConnectorId port = new NodeConnectorId(sb.toString());
 
-                // Match
-                Match match = new SfcScfMatch()
-                                  .setPortMatch(port)
-                                  .setAclMatch(ace.getMatches())
-                                  .build();
+                    // Match
+                    match = new SfcScfMatch()
+                            .setPortMatch(port)
+                            .setAclMatch(ace.getMatches())
+                            .build();
+                }
 
                 // Action
                 Actions actions = ace.getActions();
@@ -179,7 +191,12 @@ public class SfcScfOfProcessor {
 
                 StringBuffer key = new StringBuffer();
                 key.append(scf.getName()).append(aclName).append(ruleName).append(".out");
-                if (!SfcScfOfUtils.createClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort)) {
+
+                //For H-SFC
+                boolean createResult = isSubDomain?
+                        SfcScfOfUtils.createSubDomainClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort)
+                        :SfcScfOfUtils.createClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort);
+                if (!createResult) {
                     LOG.error("createdServiceFunctionClassifier: out flow is null\n");
                     continue;
                 }

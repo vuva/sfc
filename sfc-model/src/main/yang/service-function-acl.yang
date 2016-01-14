@@ -34,6 +34,15 @@ module service-function-acl {
     }
   }
 
+  augment "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:access-list-entries/ietf-acl:ace" {
+    leaf sub-domain {
+       type boolean;
+       default false;
+       description
+          "H-SFC flag";
+    }
+  }
+
   augment "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:access-list-entries/ietf-acl:ace/ietf-acl:matches" {
     description "Level 7 match criteria, based on IPFIX applicationIds";
     leaf-list application-id {

@@ -10,12 +10,14 @@ package org.opendaylight.sfc.scfofrenderer;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.sfc.util.openflow.SfcOpenflowUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.OutputPortValues;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
@@ -24,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.OutputPortValues;
 
 public class SfcScfOfUtils {
     private static final short TABLE_INDEX_CLASSIFIER = 0;
@@ -217,4 +218,44 @@ public class SfcScfOfUtils {
        return SfcOpenflowUtils.removeFlowFromDataStore(nodeName, new TableKey(TABLE_INDEX_CLASSIFIER),
                                                             new FlowKey(new FlowId(flowKey.toString())));
    }
+
+    /**
+     * @author vuva
+     *
+     */
+    public static boolean createSubDomainClassifierOutFlow(String nodeName, String flowKey, Match match, SfcNshHeader sfcNshHeader,
+            Long outPort) {
+        int order = 0;
+
+        if ((nodeName == null) || (flowKey == null) || (sfcNshHeader == null) || (sfcNshHeader.getVxlanIpDst()==null)) {
+            return false;
+        }
+
+        String dstIp = sfcNshHeader.getVxlanIpDst().getValue();
+        Action setTunIpDst = SfcOpenflowUtils.createActionNxSetTunIpv4Dst(dstIp, order++);
+        Action moveNsp = SfcOpenflowUtils.createActionNxMoveTunIPv4ToNsc1(order++);
+        Action moveNsi = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
+        Action setNsp = SfcOpenflowUtils.createActionNxSetNsp(sfcNshHeader.getNshNsp(), order++);
+        Action setNsi = SfcOpenflowUtils.createActionNxSetNsi(sfcNshHeader.getNshStartNsi(), order++);
+        Action setC2 = SfcOpenflowUtils.createActionNxSetNshc2(sfcNshHeader.getNshMetaC2(), order++);
+        Action setC4 = SfcOpenflowUtils.createActionNxSetNshc4(sfcNshHeader.getNshMetaC4(), order++);
+
+        Action out = null;
+        if (outPort == null) {
+            out = SfcOpenflowUtils.createActionOutPort(OutputPortValues.INPORT.toString(), order++);
+        } else {
+            out = SfcOpenflowUtils.createActionOutPort(outPort.intValue(), order++);
+        }
+
+        FlowBuilder flowb = new FlowBuilder();
+        flowb.setId(new FlowId(flowKey))
+            .setTableId(TABLE_INDEX_CLASSIFIER)
+            .setKey(new FlowKey(new FlowId(flowKey)))
+            .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
+            .setMatch(match)
+            .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
+                .createActionsInstructionBuilder(setTunIpDst, moveNsp, moveNsi, setNsp, setNsi, setC2, setC4, out))
+                .build());
+        return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
+    }
 }
