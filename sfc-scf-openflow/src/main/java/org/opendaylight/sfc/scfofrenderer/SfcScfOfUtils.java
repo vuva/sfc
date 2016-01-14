@@ -232,9 +232,9 @@ public class SfcScfOfUtils {
         }
 
         String dstIp = sfcNshHeader.getVxlanIpDst().getValue();
+        Action moveTunIP = SfcOpenflowUtils.createActionNxMoveTunIPv4ToNsc1(order++);
         Action setTunIpDst = SfcOpenflowUtils.createActionNxSetTunIpv4Dst(dstIp, order++);
-        Action moveNsp = SfcOpenflowUtils.createActionNxMoveTunIPv4ToNsc1(order++);
-        Action moveNsi = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
+        Action moveNsp = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
         Action setNsp = SfcOpenflowUtils.createActionNxSetNsp(sfcNshHeader.getNshNsp(), order++);
         Action setNsi = SfcOpenflowUtils.createActionNxSetNsi(sfcNshHeader.getNshStartNsi(), order++);
         Action setC2 = SfcOpenflowUtils.createActionNxSetNshc2(sfcNshHeader.getNshMetaC2(), order++);
@@ -251,10 +251,10 @@ public class SfcScfOfUtils {
         flowb.setId(new FlowId(flowKey))
             .setTableId(TABLE_INDEX_CLASSIFIER)
             .setKey(new FlowKey(new FlowId(flowKey)))
-            .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
+            .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER+1))
             .setMatch(match)
             .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
-                .createActionsInstructionBuilder(setTunIpDst, moveNsp, moveNsi, setNsp, setNsi, setC2, setC4, out))
+                .createActionsInstructionBuilder(moveTunIP, setTunIpDst, moveNsp, setNsp, setNsi, setC2, setC4, out))
                 .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
