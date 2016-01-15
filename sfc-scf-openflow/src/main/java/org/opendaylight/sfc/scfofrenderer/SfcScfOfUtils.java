@@ -241,7 +241,10 @@ public class SfcScfOfUtils {
         Action setC3 = SfcOpenflowUtils.createActionNxSetNshc3(sfcNshHeader.getNshMetaC3(), order++);
         Action setC4 = SfcOpenflowUtils.createActionNxSetNshc4(sfcNshHeader.getNshMetaC4(), order++);
         Action movetest = SfcOpenflowUtils.createActionNxMoveNsc1ToTunIpv4DstRegister(order++);
-
+        Action moveC1= SfcOpenflowUtils.createActionNxMoveNsc1(order++);
+        Action moveC2= SfcOpenflowUtils.createActionNxMoveNsc2(order++);
+        Action moveC3= SfcOpenflowUtils.createActionNxMoveNsc3(order++);
+        Action moveC4= SfcOpenflowUtils.createActionNxMoveNsc4(order++);
 
         Action out = null;
         if (outPort == null) {
@@ -258,7 +261,7 @@ public class SfcScfOfUtils {
             .setMatch(match)
             .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
 //                .createActionsInstructionBuilder(moveTunIP, setTunIpDst, moveNsp, setNsp, setNsi, setC2, setC4, out))
-                    .createActionsInstructionBuilder(setTunIpDst, setNsp, setNsi, setC1, setC2, setC3,setC4, out))
+                    .createActionsInstructionBuilder(moveC1, moveC2, moveC3,moveC4, out))
                     .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
