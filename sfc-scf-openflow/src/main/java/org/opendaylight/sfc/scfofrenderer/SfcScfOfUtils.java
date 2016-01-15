@@ -245,7 +245,7 @@ public class SfcScfOfUtils {
         Action moveC2= SfcOpenflowUtils.createActionNxMoveNsc2(order++);
         Action moveC3= SfcOpenflowUtils.createActionNxMoveNsc3(order++);
         Action moveC4= SfcOpenflowUtils.createActionNxMoveNsc4(order++);
-        outPort = null;
+
         Action out = null;
         if (outPort == null) {
             out = SfcOpenflowUtils.createActionOutPort(OutputPortValues.INPORT.toString(), order++);
