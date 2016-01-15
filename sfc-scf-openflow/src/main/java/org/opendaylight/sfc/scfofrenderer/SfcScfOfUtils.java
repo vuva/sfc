@@ -237,11 +237,11 @@ public class SfcScfOfUtils {
 //        Action moveNsp = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
         Action setNsp = SfcOpenflowUtils.createActionNxSetNsp(sfcNshHeader.getNshNsp(), order++);
         Action setNsi = SfcOpenflowUtils.createActionNxSetNsi(sfcNshHeader.getNshStartNsi(), order++);
-        Action setC1 = SfcOpenflowUtils.createActionNxSetNshc1(10L, order++);
+        Action setC1 = SfcOpenflowUtils.createActionNxSetNshc1(3232235826L, order++);
         Action setC2 = SfcOpenflowUtils.createActionNxSetNshc2(sfcNshHeader.getNshMetaC2(), order++);
         Action setC3 = SfcOpenflowUtils.createActionNxSetNshc3(sfcNshHeader.getNshMetaC3(), order++);
         Action setC4 = SfcOpenflowUtils.createActionNxSetNshc4(sfcNshHeader.getNshMetaC4(), order++);
-        Action moveNsp = SfcOpenflowUtils.createActionNxMoveTunIdRegister(order++);
+        Action movetest = SfcOpenflowUtils.createActionNxMoveNsc1ToTunIpv4DstRegister(order++);
 
 
         Action out = null;
@@ -259,7 +259,7 @@ public class SfcScfOfUtils {
             .setMatch(match)
             .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
 //                .createActionsInstructionBuilder(moveTunIP, setTunIpDst, moveNsp, setNsp, setNsi, setC2, setC4, out))
-                    .createActionsInstructionBuilder(setTunIpDst, setNsp, setNsi, setC1, setC2, setC3,setC4,moveNsp, out))
+                    .createActionsInstructionBuilder(setTunIpDst, setNsp, setNsi, setC1, setC2, setC3,setC4,movetest, out))
                     .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
