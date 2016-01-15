@@ -261,7 +261,7 @@ public class SfcScfOfUtils {
             .setMatch(match)
             .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
 //                .createActionsInstructionBuilder(moveTunIP, setTunIpDst, moveNsp, setNsp, setNsi, setC2, setC4, out))
-                    .createActionsInstructionBuilder(moveC1, moveC2, moveC3,moveC4, out))
+                    .createActionsInstructionBuilder(setTunIpDst, moveC1, moveC2, moveC3,moveC4, out))
                     .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
