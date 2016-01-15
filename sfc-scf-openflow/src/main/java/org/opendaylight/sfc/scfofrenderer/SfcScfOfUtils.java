@@ -236,7 +236,7 @@ public class SfcScfOfUtils {
 //        Action moveNsp = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
         Action setNsp = SfcOpenflowUtils.createActionNxSetNsp(sfcNshHeader.getNshNsp(), order++);
         Action setNsi = SfcOpenflowUtils.createActionNxSetNsi(sfcNshHeader.getNshStartNsi(), order++);
-        Action setC1 = SfcOpenflowUtils.createActionNxSetNshc1(3232235826L, order++);
+        Action setC1 = SfcOpenflowUtils.createActionNxSetNshc1(3232235846L, order++);
         Action setC2 = SfcOpenflowUtils.createActionNxSetNshc2(sfcNshHeader.getNshMetaC2(), order++);
         Action setC3 = SfcOpenflowUtils.createActionNxSetNshc3(sfcNshHeader.getNshMetaC3(), order++);
         Action setC4 = SfcOpenflowUtils.createActionNxSetNshc4(sfcNshHeader.getNshMetaC4(), order++);
