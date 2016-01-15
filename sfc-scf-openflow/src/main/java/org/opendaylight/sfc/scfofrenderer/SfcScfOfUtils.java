@@ -230,7 +230,6 @@ public class SfcScfOfUtils {
         if ((nodeName == null) || (flowKey == null) || (sfcNshHeader == null) || (sfcNshHeader.getVxlanIpDst()==null)) {
             return false;
         }
-
         String dstIp = sfcNshHeader.getVxlanIpDst().getValue();
 //        Action moveTunIP = SfcOpenflowUtils.createActionNxMoveTunIPv4ToNsc1(order++);
         Action setTunIpDst = SfcOpenflowUtils.createActionNxSetTunIpv4Dst(dstIp, order++);

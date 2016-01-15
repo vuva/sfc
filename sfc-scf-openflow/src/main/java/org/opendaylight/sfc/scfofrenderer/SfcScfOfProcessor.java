@@ -150,19 +150,26 @@ public class SfcScfOfProcessor {
                 }else{
                     isSubDomain = ace1.isSubDomain();
                 }
-                match = new SfcScfMatch()
-                        .setAclMatch(ace.getMatches())
-                        .build();
-                StringBuffer sb = new StringBuffer();
-                sb.append(nodeName).append(":");
-                sb.append(String.valueOf(inPort));
-                NodeConnectorId port = new NodeConnectorId(sb.toString());
 
-                // Match
-                match = new SfcScfMatch()
-                        .setPortMatch(port)
-                        .setAclMatch(ace.getMatches())
-                        .build();
+                if (isSubDomain) {
+                    match = new SfcScfMatch()
+                            .setAclMatch(ace.getMatches())
+                            .build();
+                }else{
+                    match = new SfcScfMatch()
+                            .setAclMatch(ace.getMatches())
+                            .build();
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(nodeName).append(":");
+                    sb.append(String.valueOf(inPort));
+                    NodeConnectorId port = new NodeConnectorId(sb.toString());
+
+                    // Match
+                    match = new SfcScfMatch()
+                            .setPortMatch(port)
+                            .setAclMatch(ace.getMatches())
+                            .build();
+                }
 
                 // Action
                 Actions actions = ace.getActions();
