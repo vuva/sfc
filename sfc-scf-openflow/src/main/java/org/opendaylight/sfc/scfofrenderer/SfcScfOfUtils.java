@@ -249,7 +249,7 @@ public class SfcScfOfUtils {
         } else {
             out = SfcOpenflowUtils.createActionOutPort(outPort.intValue(), order++);
         }
-
+        match =  new MatchBuilder().build();
         FlowBuilder flowb = new FlowBuilder();
         flowb.setId(new FlowId(flowKey))
             .setTableId(TABLE_INDEX_CLASSIFIER)
