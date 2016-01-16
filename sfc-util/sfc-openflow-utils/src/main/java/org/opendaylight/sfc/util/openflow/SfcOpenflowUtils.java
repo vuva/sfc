@@ -1292,15 +1292,26 @@ public class SfcOpenflowUtils {
 
         return ab.build();
     }
-
-    public static Action createActionNxMoveNsc1ToNsc2(int order) {
+    public static Action createActionNxMoveNsc3ToNsp(int order) {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxMoveRegAction(
-                new SrcNxNshc1CaseBuilder().setNxNshc1Dst(Boolean.TRUE).build(),
-                new DstNxNshc2CaseBuilder().setNxNshc2Dst(Boolean.TRUE).build(),
-                31,
+                new SrcNxNshc3CaseBuilder().setNxNshc3Dst(Boolean.TRUE).build(),
+                new DstNxNspCaseBuilder().setNxNspDst(Boolean.TRUE).build(),
+                8,31,0,23,
                 false));
 
         return ab.build();
     }
+
+    public static Action createActionNxMoveNsc3ToNsi(int order) {
+        ActionBuilder ab = createActionBuilder(order);
+        ab.setAction(nxMoveRegAction(
+                new SrcNxNshc3CaseBuilder().setNxNshc3Dst(Boolean.TRUE).build(),
+                new DstNxNsiCaseBuilder().setNxNsiDst(Boolean.TRUE).build(),
+                0,7,0,7,
+                false));
+
+        return ab.build();
+    }
+
 }
