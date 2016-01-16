@@ -1286,7 +1286,7 @@ public class SfcOpenflowUtils {
     public static Action createActionNxMoveNsiToNsc3(int order) {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxMoveRegAction(
-                new SrcNxNspCaseBuilder().setNxNspDst(Boolean.TRUE).build(),
+                new SrcNxNsiCaseBuilder().setNxNsiDst(Boolean.TRUE).build(),
                 new DstNxNshc3CaseBuilder().setNxNshc3Dst(Boolean.TRUE).build(),
                 0,7,0,7,
                 false));

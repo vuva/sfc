@@ -34,14 +34,14 @@ public class SfcScfOfUtils {
     private static final int FLOW_PRIORITY_CLASSIFIER = 1000;
     private static final int FLOW_PRIORITY_MATCH_ANY = 5;
 
-   /**
-    * Initialize classifier flow table.
-    * The function returns true if successful.
-    * The function returns false if unsuccessful.
-    *
-    * @param  nodeName flow table node name
-    * @return          initialization result
-    */
+    /**
+     * Initialize classifier flow table.
+     * The function returns true if successful.
+     * The function returns false if unsuccessful.
+     *
+     * @param  nodeName flow table node name
+     * @return          initialization result
+     */
     public static boolean initClassifierTable(String nodeName) {
         int order = 0;
 
@@ -68,18 +68,18 @@ public class SfcScfOfUtils {
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, fb);
     }
 
-   /**
-    * create classifier out flow.
-    * The function returns true if successful.
-    * The function returns false if unsuccessful.
-    *
-    * @param  nodeName flow table node name
-    * @param  flowKey  flow key
-    * @param  match    flow match
-    * @param  sfcNshHeader nsh header
-    * @param  outPort  flow out port
-    * @return          create flow result
-    */
+    /**
+     * create classifier out flow.
+     * The function returns true if successful.
+     * The function returns false if unsuccessful.
+     *
+     * @param  nodeName flow table node name
+     * @param  flowKey  flow key
+     * @param  match    flow match
+     * @param  sfcNshHeader nsh header
+     * @param  outPort  flow out port
+     * @return          create flow result
+     */
     public static boolean createClassifierOutFlow(String nodeName, String flowKey, Match match, SfcNshHeader sfcNshHeader,
             Long outPort) {
         int order = 0;
@@ -106,27 +106,27 @@ public class SfcScfOfUtils {
 
         FlowBuilder flowb = new FlowBuilder();
         flowb.setId(new FlowId(flowKey))
-            .setTableId(TABLE_INDEX_CLASSIFIER)
-            .setKey(new FlowKey(new FlowId(flowKey)))
-            .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
-            .setMatch(match)
-            .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
+        .setTableId(TABLE_INDEX_CLASSIFIER)
+        .setKey(new FlowKey(new FlowId(flowKey)))
+        .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
+        .setMatch(match)
+        .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
                 .createActionsInstructionBuilder(setTunIpDst, setNsp, setNsi, setC1, setC2, setC3, setC4, out))
                 .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
 
-   /**
-    * create classifier in flow.
-    * The function returns true if successful.
-    * The function returns false if unsuccessful.
-    *
-    * @param  nodeName flow table node name
-    * @param  flowKey  flow key
-    * @param  sfcNshHeader nsh header
-    * @param  outPort  flow out port
-    * @return          create in result
-    */
+    /**
+     * create classifier in flow.
+     * The function returns true if successful.
+     * The function returns false if unsuccessful.
+     *
+     * @param  nodeName flow table node name
+     * @param  flowKey  flow key
+     * @param  sfcNshHeader nsh header
+     * @param  outPort  flow out port
+     * @return          create in result
+     */
     public static boolean createClassifierInFlow(String nodeName, String flowKey, SfcNshHeader sfcNshHeader, Long outPort) {
         int order = 0;
 
@@ -148,26 +148,26 @@ public class SfcScfOfUtils {
 
         FlowBuilder flowb = new FlowBuilder();
         flowb.setId(new FlowId(flowKey))
-            .setTableId(TABLE_INDEX_CLASSIFIER)
-            .setKey(new FlowKey(new FlowId(flowKey)))
-            .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
-            .setMatch(mb.build())
-            .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
+        .setTableId(TABLE_INDEX_CLASSIFIER)
+        .setKey(new FlowKey(new FlowId(flowKey)))
+        .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
+        .setMatch(mb.build())
+        .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
                 .createActionsInstructionBuilder(out))
                 .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
 
-   /**
-    * create classifier relay flow.
-    * The function returns true if successful.
-    * The function returns false if unsuccessful.
-    *
-    * @param  nodeName flow table node name
-    * @param  flowKey  flow key
-    * @param  sfcNshHeader nsh header
-    * @return          create relay result
-    */
+    /**
+     * create classifier relay flow.
+     * The function returns true if successful.
+     * The function returns false if unsuccessful.
+     *
+     * @param  nodeName flow table node name
+     * @param  flowKey  flow key
+     * @param  sfcNshHeader nsh header
+     * @return          create relay result
+     */
     public static boolean createClassifierRelayFlow(String nodeName, String flowKey, SfcNshHeader sfcNshHeader) {
         int order = 0;
 
@@ -190,34 +190,34 @@ public class SfcScfOfUtils {
 
         FlowBuilder flowb = new FlowBuilder();
         flowb.setId(new FlowId(flowKey))
-            .setTableId(TABLE_INDEX_CLASSIFIER)
-            .setKey(new FlowKey(new FlowId(flowKey)))
-            .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
-            .setMatch(mb.build())
-            .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
+        .setTableId(TABLE_INDEX_CLASSIFIER)
+        .setKey(new FlowKey(new FlowId(flowKey)))
+        .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
+        .setMatch(mb.build())
+        .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
                 .createActionsInstructionBuilder(setTunIpDst, mvNsp, mvNsi, mvC1, mvC2, out))
                 .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
 
-   /**
-    * delete classifier flow.
-    * The function returns true if successful.
-    * The function returns false if unsuccessful.
-    *
-    * @param  nodeName flow table node name
-    * @param  flowKey  flow key
-    * @return          delete result
-    */
+    /**
+     * delete classifier flow.
+     * The function returns true if successful.
+     * The function returns false if unsuccessful.
+     *
+     * @param  nodeName flow table node name
+     * @param  flowKey  flow key
+     * @return          delete result
+     */
     public static boolean deleteClassifierFlow(String nodeName, String flowKey) {
 
-       if ((nodeName == null) || (flowKey == null)) {
-           return false;
-       }
+        if ((nodeName == null) || (flowKey == null)) {
+            return false;
+        }
 
-       return SfcOpenflowUtils.removeFlowFromDataStore(nodeName, new TableKey(TABLE_INDEX_CLASSIFIER),
-                                                            new FlowKey(new FlowId(flowKey.toString())));
-   }
+        return SfcOpenflowUtils.removeFlowFromDataStore(nodeName, new TableKey(TABLE_INDEX_CLASSIFIER),
+                new FlowKey(new FlowId(flowKey.toString())));
+    }
 
     /**
      * @author vuva
@@ -249,14 +249,13 @@ public class SfcScfOfUtils {
         match =  new MatchBuilder().build();
         FlowBuilder flowb = new FlowBuilder();
         flowb.setId(new FlowId(flowKey))
-            .setTableId(TABLE_INDEX_CLASSIFIER)
-            .setKey(new FlowKey(new FlowId(flowKey)))
-            .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER+1))
-            .setMatch(match)
-            .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
-//                .createActionsInstructionBuilder(moveTunIP, setTunIpDst, moveNsp, setNsp, setNsi, setC2, setC4, out))
-                    .createActionsInstructionBuilder(setTunIpDst,moveNspToNsc3, moveNsiToNsc3,setNsp, setNsi,setC1,setC2,setC4, out))
-                    .build());
+        .setTableId(TABLE_INDEX_CLASSIFIER)
+        .setKey(new FlowKey(new FlowId(flowKey)))
+        .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER+1))
+        .setMatch(match)
+        .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
+        .createActionsInstructionBuilder(setTunIpDst,moveNspToNsc3, moveNsiToNsc3,setNsp, setNsi,setC1,setC2,setC4, out))
+        .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
 }
