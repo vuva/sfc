@@ -231,30 +231,27 @@ public class SfcScfOfUtils {
             return false;
         }
         String dstIp = sfcNshHeader.getVxlanIpDst().getValue();
+        Action moveTunIpSrcToNsc1 = SfcOpenflowUtils.createActionNxMoveSrcTunIPv4ToNsc1(order++);
         Action setTunIpDst = SfcOpenflowUtils.createActionNxSetTunIpv4Dst(dstIp, order++);
         Action moveNspToNsc3 = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
         Action moveNsiToNsc3 = SfcOpenflowUtils.createActionNxMoveNsiToNsc3(order++);
         Action setNsp = SfcOpenflowUtils.createActionNxSetNsp(sfcNshHeader.getNshNsp(), order++);
         Action setNsi = SfcOpenflowUtils.createActionNxSetNsi(sfcNshHeader.getNshStartNsi(), order++);
-        Action setC1 = SfcOpenflowUtils.createActionNxSetNshc1(sfcNshHeader.getNshMetaC1(), order++);
         Action setC2 = SfcOpenflowUtils.createActionNxSetNshc2(sfcNshHeader.getNshMetaC2(), order++);
         Action setC4 = SfcOpenflowUtils.createActionNxSetNshc4(sfcNshHeader.getNshMetaC4(), order++);
-        outPort = null;
-        Action out = null;
-        if (outPort == null) {
-            out = SfcOpenflowUtils.createActionOutPort(OutputPortValues.INPORT.toString(), order++);
-        } else {
-            out = SfcOpenflowUtils.createActionOutPort(outPort.intValue(), order++);
-        }
+
+        // TODO: Workaround for HSFC - fix later
+        Action out = SfcOpenflowUtils.createActionOutPort(OutputPortValues.INPORT.toString(), order++);
         match =  new MatchBuilder().build();
+
         FlowBuilder flowb = new FlowBuilder();
         flowb.setId(new FlowId(flowKey))
         .setTableId(TABLE_INDEX_CLASSIFIER)
         .setKey(new FlowKey(new FlowId(flowKey)))
-        .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER+1))
+        .setPriority(Integer.valueOf(FLOW_PRIORITY_CLASSIFIER))
         .setMatch(match)
         .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
-        .createActionsInstructionBuilder(setTunIpDst,moveNspToNsc3, moveNsiToNsc3,setNsp, setNsi,setC1,setC2,setC4, out))
+        .createActionsInstructionBuilder(moveTunIpSrcToNsc1,setTunIpDst,moveNspToNsc3, moveNsiToNsc3,setNsp, setNsi ,setC2, setC4, out))
         .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
