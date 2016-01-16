@@ -1239,17 +1239,17 @@ public class SfcOpenflowUtils {
 
     public static org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
     nxMoveRegAction(
-            SrcChoice srcChoice, DstChoice dstChoice, int startOffset,int endOffset, boolean groupBucket) {
+            SrcChoice srcChoice, DstChoice dstChoice, int srcStartOffset,int srcEndOffset, int dstStartOffset, int dstEndOffset, boolean groupBucket) {
         NxRegMove r = new NxRegMoveBuilder()
             .setSrc(new SrcBuilder()
                 .setSrcChoice(srcChoice)
-                .setStart(Integer.valueOf(0))
-                .setEnd(Integer.valueOf(endOffset))
+                .setStart(Integer.valueOf(srcStartOffset))
+                .setEnd(Integer.valueOf(srcEndOffset))
                 .build())
             .setDst(new org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.move.grouping.nx.reg.move.DstBuilder()
                 .setDstChoice(dstChoice)
-                .setStart(Integer.valueOf(8))
-                .setEnd(Integer.valueOf(31))
+                .setStart(Integer.valueOf(dstStartOffset))
+                .setEnd(Integer.valueOf(dstEndOffset))
                 .build())
             .build();
 
@@ -1277,8 +1277,18 @@ public class SfcOpenflowUtils {
         ab.setAction(nxMoveRegAction(
                 new SrcNxNspCaseBuilder().setNxNspDst(Boolean.TRUE).build(),
                 new DstNxNshc3CaseBuilder().setNxNshc3Dst(Boolean.TRUE).build(),
-                8,
-                31,
+                0,23,8,31,
+                false));
+
+        return ab.build();
+    }
+
+    public static Action createActionNxMoveNsiToNsc3(int order) {
+        ActionBuilder ab = createActionBuilder(order);
+        ab.setAction(nxMoveRegAction(
+                new SrcNxNspCaseBuilder().setNxNspDst(Boolean.TRUE).build(),
+                new DstNxNshc3CaseBuilder().setNxNshc3Dst(Boolean.TRUE).build(),
+                0,7,0,7,
                 false));
 
         return ab.build();
