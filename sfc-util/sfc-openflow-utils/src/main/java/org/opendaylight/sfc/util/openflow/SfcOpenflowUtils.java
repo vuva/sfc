@@ -1237,6 +1237,30 @@ public class SfcOpenflowUtils {
         return false;
     }
 
+    public static org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
+    nxMoveRegAction(
+            SrcChoice srcChoice, DstChoice dstChoice, int startOffset,int endOffset, boolean groupBucket) {
+        NxRegMove r = new NxRegMoveBuilder()
+            .setSrc(new SrcBuilder()
+                .setSrcChoice(srcChoice)
+                .setStart(Integer.valueOf(0))
+                .setEnd(Integer.valueOf(endOffset))
+                .build())
+            .setDst(new org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.move.grouping.nx.reg.move.DstBuilder()
+                .setDstChoice(dstChoice)
+                .setStart(Integer.valueOf(0))
+                .setEnd(Integer.valueOf(endOffset))
+                .build())
+            .build();
+
+        if (groupBucket) {
+            return new NxActionRegMoveNodesNodeGroupBucketsBucketActionsCaseBuilder()
+            .setNxRegMove(r).build();
+        } else {
+            return new NxActionRegMoveNodesNodeTableFlowApplyActionsCaseBuilder()
+            .setNxRegMove(r).build();
+        }
+    }
     public static Action createActionNxMoveTunIPv4ToNsc1(int order) {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxMoveRegAction(
@@ -1253,7 +1277,8 @@ public class SfcOpenflowUtils {
         ab.setAction(nxMoveRegAction(
                 new SrcNxNspCaseBuilder().setNxNspDst(Boolean.TRUE).build(),
                 new DstNxNshc3CaseBuilder().setNxNshc3Dst(Boolean.TRUE).build(),
-                23,
+                8,
+                31,
                 false));
 
         return ab.build();
