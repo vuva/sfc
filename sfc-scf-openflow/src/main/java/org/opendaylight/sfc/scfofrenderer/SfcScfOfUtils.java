@@ -231,20 +231,13 @@ public class SfcScfOfUtils {
             return false;
         }
         String dstIp = sfcNshHeader.getVxlanIpDst().getValue();
-//        Action moveTunIP = SfcOpenflowUtils.createActionNxMoveTunIPv4ToNsc1(order++);
         Action setTunIpDst = SfcOpenflowUtils.createActionNxSetTunIpv4Dst(dstIp, order++);
-//        Action moveNsp = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
+        Action moveNspToNsc3 = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
         Action setNsp = SfcOpenflowUtils.createActionNxSetNsp(sfcNshHeader.getNshNsp(), order++);
         Action setNsi = SfcOpenflowUtils.createActionNxSetNsi(sfcNshHeader.getNshStartNsi(), order++);
-        Action setC1 = SfcOpenflowUtils.createActionNxSetNshc1(3232235846L, order++);
+        Action setC1 = SfcOpenflowUtils.createActionNxSetNshc1(sfcNshHeader.getNshMetaC1(), order++);
         Action setC2 = SfcOpenflowUtils.createActionNxSetNshc2(sfcNshHeader.getNshMetaC2(), order++);
-        Action setC3 = SfcOpenflowUtils.createActionNxSetNshc3(sfcNshHeader.getNshMetaC3(), order++);
         Action setC4 = SfcOpenflowUtils.createActionNxSetNshc4(sfcNshHeader.getNshMetaC4(), order++);
-        Action movetest = SfcOpenflowUtils.createActionNxMoveNsc1ToTunIpv4DstRegister(order++);
-        Action moveTunIPToC1= SfcOpenflowUtils.createActionNxMoveTunIPv4ToNsc1(order++);
-        Action moveC2= SfcOpenflowUtils.createActionNxMoveNsc2(order++);
-        Action moveC3= SfcOpenflowUtils.createActionNxMoveNsc3(order++);
-        Action moveC4= SfcOpenflowUtils.createActionNxMoveNsc4(order++);
         outPort = null;
         Action out = null;
         if (outPort == null) {
@@ -261,7 +254,7 @@ public class SfcScfOfUtils {
             .setMatch(match)
             .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
 //                .createActionsInstructionBuilder(moveTunIP, setTunIpDst, moveNsp, setNsp, setNsi, setC2, setC4, out))
-                    .createActionsInstructionBuilder(moveTunIPToC1,setTunIpDst ,moveC2, moveC3,moveC4, out))
+                    .createActionsInstructionBuilder(setTunIpDst,moveNspToNsc3 ,setNsp, setNsi,setC1,setC2,setC4, out))
                     .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
