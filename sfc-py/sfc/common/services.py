@@ -157,7 +157,7 @@ class BasicService(object):
 
         rw_data = bytearray(data)
         rw_data, _ = process_service_index(rw_data, self.server_base_values)
-        top_nsi = self.context_header_values.service_platform & 0x000000FF
+        top_nsi = self.server_ctx_values.service_platform & 0x000000FF
         rw_data, _ = process_top_service_index(rw_data, top_nsi)
         sfc_globals.sf_processed_packets += 1
 
