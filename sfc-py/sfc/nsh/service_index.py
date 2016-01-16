@@ -28,6 +28,8 @@ def set_service_index(rw_data, service_index):
     """
     rw_data[15] = service_index
 
+def set_top_service_index(rw_data, top_service_index):
+    rw_data[27] = top_service_index
 
 def process_service_index(rw_data, server_base_values):
     """
@@ -47,6 +49,19 @@ def process_service_index(rw_data, server_base_values):
     else:
         server_base_values.service_index -= 1
         set_service_index(rw_data, server_base_values.service_index)
+
+        si_result = 1
+
+    return rw_data, si_result
+
+
+def process_top_service_index(rw_data, top_nsi):
+    if top_nsi == 0:
+        si_result = 0
+
+    else:
+        top_nsi -= 1
+        set_top_service_index(rw_data, top_nsi)
 
         si_result = 1
 
