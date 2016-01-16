@@ -1248,8 +1248,8 @@ public class SfcOpenflowUtils {
                 .build())
             .setDst(new org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.move.grouping.nx.reg.move.DstBuilder()
                 .setDstChoice(dstChoice)
-                .setStart(Integer.valueOf(0))
-                .setEnd(Integer.valueOf(endOffset))
+                .setStart(Integer.valueOf(8))
+                .setEnd(Integer.valueOf(31))
                 .build())
             .build();
 
