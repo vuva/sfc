@@ -1253,7 +1253,7 @@ public class SfcOpenflowUtils {
         ab.setAction(nxMoveRegAction(
                 new SrcNxNspCaseBuilder().setNxNspDst(Boolean.TRUE).build(),
                 new DstNxNshc3CaseBuilder().setNxNshc3Dst(Boolean.TRUE).build(),
-                31,
+                23,
                 false));
 
         return ab.build();
