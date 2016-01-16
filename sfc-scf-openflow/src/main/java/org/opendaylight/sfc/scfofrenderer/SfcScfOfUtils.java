@@ -233,7 +233,7 @@ public class SfcScfOfUtils {
         String dstIp = sfcNshHeader.getVxlanIpDst().getValue();
 //        Action moveTunIP = SfcOpenflowUtils.createActionNxMoveTunIPv4ToNsc1(order++);
         Action setTunIpDst = SfcOpenflowUtils.createActionNxSetTunIpv4Dst(dstIp, order++);
-        Action moveNsp = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
+//        Action moveNsp = SfcOpenflowUtils.createActionNxMoveNspToNsc3(order++);
         Action setNsp = SfcOpenflowUtils.createActionNxSetNsp(sfcNshHeader.getNshNsp(), order++);
         Action setNsi = SfcOpenflowUtils.createActionNxSetNsi(sfcNshHeader.getNshStartNsi(), order++);
         Action setC1 = SfcOpenflowUtils.createActionNxSetNshc1(3232235846L, order++);
@@ -241,8 +241,7 @@ public class SfcScfOfUtils {
         Action setC3 = SfcOpenflowUtils.createActionNxSetNshc3(sfcNshHeader.getNshMetaC3(), order++);
         Action setC4 = SfcOpenflowUtils.createActionNxSetNshc4(sfcNshHeader.getNshMetaC4(), order++);
         Action movetest = SfcOpenflowUtils.createActionNxMoveNsc1ToTunIpv4DstRegister(order++);
-        Action moveC1= SfcOpenflowUtils.createActionNxMoveNsc1(order++);
-        Action moveC2= SfcOpenflowUtils.createActionNxMoveNsc2(order++);
+        Action moveC1To2= SfcOpenflowUtils.createActionNxMoveNsc1ToNsc2(order++);
         Action moveC3= SfcOpenflowUtils.createActionNxMoveNsc3(order++);
         Action moveC4= SfcOpenflowUtils.createActionNxMoveNsc4(order++);
         outPort = null;
@@ -261,7 +260,7 @@ public class SfcScfOfUtils {
             .setMatch(match)
             .setInstructions(SfcOpenflowUtils.createInstructionsBuilder(SfcOpenflowUtils
 //                .createActionsInstructionBuilder(moveTunIP, setTunIpDst, moveNsp, setNsp, setNsi, setC2, setC4, out))
-                    .createActionsInstructionBuilder(setTunIpDst,moveNsp, moveC1, moveC2, moveC3,moveC4, out))
+                    .createActionsInstructionBuilder(setTunIpDst, moveC1To2, moveC3,moveC4, out))
                     .build());
         return SfcOpenflowUtils.writeFlowToDataStore(nodeName, flowb);
     }
