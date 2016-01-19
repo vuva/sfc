@@ -242,7 +242,7 @@ public class SfcScfOfUtils {
 
         // TODO: Workaround for HSFC - fix later
         Action out = SfcOpenflowUtils.createActionOutPort(OutputPortValues.INPORT.toString(), order++);
-        match =  new MatchBuilder().build();
+//        match =  new MatchBuilder().build();
 
         FlowBuilder flowb = new FlowBuilder();
         flowb.setId(new FlowId(flowKey))
