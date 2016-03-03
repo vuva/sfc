@@ -10,11 +10,13 @@ package org.opendaylight.sfc.scfofrenderer;
 
 
 import java.util.List;
+
 import org.opendaylight.sfc.provider.api.SfcProviderAclAPI;
 import org.opendaylight.sfc.provider.api.SfcProviderServiceForwarderAPI;
 import org.opendaylight.sfc.sfc_ovs.provider.SfcOvsUtil;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.acl.rev151001.access.lists.acl.access.list.entries.ace.actions.sfc.action.AclRenderedServicePath;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.acl.rev151001.Ace1;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.acl.rev151001.Actions1;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.acl.rev151001.access.lists.acl.access.list.entries.ace.actions.sfc.action.AclRenderedServicePath;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.RspName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.scf.rev140701.attachment.point.attachment.point.type.Interface;
@@ -38,14 +40,14 @@ public class SfcScfOfProcessor {
 
     public SfcScfOfProcessor() {}
 
-   /**
-    * create flows for service function classifier
-    * The function returns true if successful.
-    * The function returns false if unsuccessful.
-    *
-    * @param  scf service function classifier
-    * @return          create result
-    */
+    /**
+     * create flows for service function classifier
+     * The function returns true if successful.
+     * The function returns false if unsuccessful.
+     *
+     * @param  scf service function classifier
+     * @return          create result
+     */
     public boolean createdServiceFunctionClassifier(ServiceFunctionClassifier scf) {
         if (scf == null) {
             LOG.error("createdServiceFunctionClassifier: scf is null\n");
@@ -138,16 +140,36 @@ public class SfcScfOfProcessor {
                     continue;
                 }
 
-                StringBuffer sb = new StringBuffer();
-                sb.append(nodeName).append(":");
-                sb.append(String.valueOf(inPort));
-                NodeConnectorId port = new NodeConnectorId(sb.toString());
+                // THis is only for testing H-SFC
+                Ace1 ace1 = ace.getAugmentation(Ace1.class);
+                Match match;
+                boolean isSubDomain = false;
+                if (ace1 == null) {
+                    LOG.error("createdServiceFunctionClassifier: ace augment is null\n");
+                    continue;
+                }else{
+                    isSubDomain = ace1.isSubDomain();
+                }
 
-                // Match
-                Match match = new SfcScfMatch()
-                                  .setPortMatch(port)
-                                  .setAclMatch(ace.getMatches())
-                                  .build();
+                if (isSubDomain) {
+                    match = new SfcScfMatch()
+                            .setAclMatch(ace.getMatches())
+                            .build();
+                }else{
+                    match = new SfcScfMatch()
+                            .setAclMatch(ace.getMatches())
+                            .build();
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(nodeName).append(":");
+                    sb.append(String.valueOf(inPort));
+                    NodeConnectorId port = new NodeConnectorId(sb.toString());
+
+                    // Match
+                    match = new SfcScfMatch()
+                            .setPortMatch(port)
+                            .setAclMatch(ace.getMatches())
+                            .build();
+                }
 
                 // Action
                 Actions actions = ace.getActions();
@@ -179,63 +201,68 @@ public class SfcScfOfProcessor {
 
                 StringBuffer key = new StringBuffer();
                 key.append(scf.getName()).append(aclName).append(ruleName).append(".out");
-                if (!SfcScfOfUtils.createClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort)) {
-                    LOG.error("createdServiceFunctionClassifier: out flow is null\n");
-                    continue;
-                }
 
-                RspName reverseRspName = null;
-                if (path.getRenderedServicePath().endsWith("-Reverse")) {
-                    reverseRspName = new RspName(path.getRenderedServicePath().replaceFirst("-Reverse", ""));
-                } else {
-                    reverseRspName = new RspName(path.getRenderedServicePath() + "-Reverse");
-                }
+                //For H-SFC
+                boolean createResult = isSubDomain?
+                        SfcScfOfUtils.createSubDomainClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort)
+                        :SfcScfOfUtils.createClassifierOutFlow(nodeName, key.toString(), match, nsh, outPort);
+                        if (!createResult) {
+                            LOG.error("createdServiceFunctionClassifier: out flow is null\n");
+                            continue;
+                        }
 
-                SfcNshHeader reverseNsh = SfcNshHeader.getSfcNshHeader(reverseRspName);
-
-                if (reverseNsh == null) {
-                    LOG.debug("createdServiceFunctionClassifier: reverseNsh is null\n");
-                } else {
-                    key = new StringBuffer();
-                    key.append(scf.getName()).append(aclName).append(ruleName).append(".in");
-                    if (!SfcScfOfUtils.createClassifierInFlow(nodeName, key.toString(), reverseNsh, inPort)) {
-                        LOG.error("createdServiceFunctionClassifier: fail to create in flow\n");
-                    }
-
-                    SffName lastSffName = reverseNsh.getSffName();
-                    if (lastSffName != null &&
-                        !reverseNsh.getSffName().equals(sffName)) {
-                        ServiceFunctionForwarder lastSff = SfcProviderServiceForwarderAPI.readServiceFunctionForwarder(lastSffName);
-                        String lastNodeName = SfcOvsUtil.getOpenFlowNodeIdForSff(lastSff);
-                        if (lastNodeName == null) {
-                            LOG.error("createdServiceFunctionClassifier: lastNodeName is null\n");
+                        RspName reverseRspName = null;
+                        if (path.getRenderedServicePath().endsWith("-Reverse")) {
+                            reverseRspName = new RspName(path.getRenderedServicePath().replaceFirst("-Reverse", ""));
                         } else {
-                            LOG.debug("createdServiceFunctionClassifier: relay node is {}\n", lastNodeName);
+                            reverseRspName = new RspName(path.getRenderedServicePath() + "-Reverse");
                         }
-                        outPort = SfcOvsUtil.getVxlanOfPort(lastNodeName);
-                        key = new StringBuffer();
-                        key.append(scf.getName()).append(aclName).append(ruleName).append(".relay");
-                        Ip ip = SfcOvsUtil.getSffVxlanDataLocator(sff);
-                        reverseNsh.setVxlanIpDst(ip.getIp().getIpv4Address());
-                        reverseNsh.setVxlanUdpPort(ip.getPort());
-                        if (!SfcScfOfUtils.createClassifierRelayFlow(lastNodeName, key.toString(), reverseNsh)) {
-                            LOG.error("createdServiceFunctionClassifier: fail to create relay flow\n");
+
+                        SfcNshHeader reverseNsh = SfcNshHeader.getSfcNshHeader(reverseRspName);
+
+                        if (reverseNsh == null) {
+                            LOG.debug("createdServiceFunctionClassifier: reverseNsh is null\n");
+                        } else {
+                            key = new StringBuffer();
+                            key.append(scf.getName()).append(aclName).append(ruleName).append(".in");
+                            if (!SfcScfOfUtils.createClassifierInFlow(nodeName, key.toString(), reverseNsh, inPort)) {
+                                LOG.error("createdServiceFunctionClassifier: fail to create in flow\n");
+                            }
+
+                            SffName lastSffName = reverseNsh.getSffName();
+                            if (lastSffName != null &&
+                                    !reverseNsh.getSffName().equals(sffName)) {
+                                ServiceFunctionForwarder lastSff = SfcProviderServiceForwarderAPI.readServiceFunctionForwarder(lastSffName);
+                                String lastNodeName = SfcOvsUtil.getOpenFlowNodeIdForSff(lastSff);
+                                if (lastNodeName == null) {
+                                    LOG.error("createdServiceFunctionClassifier: lastNodeName is null\n");
+                                } else {
+                                    LOG.debug("createdServiceFunctionClassifier: relay node is {}\n", lastNodeName);
+                                }
+                                outPort = SfcOvsUtil.getVxlanOfPort(lastNodeName);
+                                key = new StringBuffer();
+                                key.append(scf.getName()).append(aclName).append(ruleName).append(".relay");
+                                Ip ip = SfcOvsUtil.getSffVxlanDataLocator(sff);
+                                reverseNsh.setVxlanIpDst(ip.getIp().getIpv4Address());
+                                reverseNsh.setVxlanUdpPort(ip.getPort());
+                                if (!SfcScfOfUtils.createClassifierRelayFlow(lastNodeName, key.toString(), reverseNsh)) {
+                                    LOG.error("createdServiceFunctionClassifier: fail to create relay flow\n");
+                                }
+                            }
                         }
-                    }
-                }
             }
         }
         return true;
     }
 
-   /**
-    * delete flows for service function classifier
-    * The function returns true if successful.
-    * The function returns false if unsuccessful.
-    *
-    * @param  scf service function classifier
-    * @return          delete result
-    */
+    /**
+     * delete flows for service function classifier
+     * The function returns true if successful.
+     * The function returns false if unsuccessful.
+     *
+     * @param  scf service function classifier
+     * @return          delete result
+     */
     public boolean deletedServiceFunctionClassifier(ServiceFunctionClassifier scf) {
         if (scf == null) {
             LOG.error("deletedServiceFunctionClassifier: scf is null\n");
@@ -347,7 +374,7 @@ public class SfcScfOfProcessor {
 
                     SffName lastSffName = reverseNsh.getSffName();
                     if (lastSffName != null &&
-                        !reverseNsh.getSffName().equals(sffName)) {
+                            !reverseNsh.getSffName().equals(sffName)) {
                         ServiceFunctionForwarder lastSff = SfcProviderServiceForwarderAPI.readServiceFunctionForwarder(lastSffName);
                         String lastNodeName = SfcOvsUtil.getOpenFlowNodeIdForSff(lastSff);
                         if (lastNodeName == null) {

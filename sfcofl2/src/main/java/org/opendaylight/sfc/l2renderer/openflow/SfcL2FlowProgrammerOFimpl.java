@@ -902,6 +902,7 @@ public class SfcL2FlowProgrammerOFimpl implements SfcL2FlowProgrammerInterface {
      * @param port - the switch port to send the packet out on
      * @param pathId - the RSP path id to match on
      */
+    @Override
     public void configureVlanLastHopTransportEgressFlow(final String sffNodeName, final String srcMac, final String dstMac,
             final int dstVlan, final String port, final long pathId) {
 
@@ -1016,8 +1017,13 @@ public class SfcL2FlowProgrammerOFimpl implements SfcL2FlowProgrammerInterface {
         // On the last hop Copy/Move Nsi, Nsp, Nsc1=>TunIpv4Dst, and Nsc2=>TunId(Vnid)
         int order = 0;
         List<Action> actionList = new ArrayList<Action>();
+        // TODO: Temporary added for HSFC, check later
+
+        actionList.add(SfcOpenflowUtils.createActionNxMoveNsc3ToNsi(order++));
+        actionList.add(SfcOpenflowUtils.createActionNxMoveNsc3ToNsp(order++));
         actionList.add(SfcOpenflowUtils.createActionNxMoveNsi(order++));
         actionList.add(SfcOpenflowUtils.createActionNxMoveNsp(order++));
+
         actionList.add(SfcOpenflowUtils.createActionNxMoveNsc1ToTunIpv4DstRegister(order++));
         actionList.add(SfcOpenflowUtils.createActionNxMoveNsc2ToTunIdRegister(order++));
 
