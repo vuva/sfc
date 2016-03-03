@@ -22,7 +22,7 @@ from ..common.sfc_globals import sfc_globals
 from ..nsh.common import *  # noqa
 from ..nsh import decode as nsh_decode
 from ..nsh.encode import add_sf_to_trace_pkt
-from ..nsh.service_index import process_service_index, process_top_service_index
+from ..nsh.service_index import process_service_index
 
 __author__ = "Jim Guichard, Reinaldo Penno"
 __copyright__ = "Copyright(c) 2014, Cisco Systems, Inc."
@@ -157,8 +157,6 @@ class BasicService(object):
 
         rw_data = bytearray(data)
         rw_data, _ = process_service_index(rw_data, self.server_base_values)
-        top_nsi = self.server_ctx_values.service_platform & 0x000000FF
-        rw_data, _ = process_top_service_index(rw_data, top_nsi)
         sfc_globals.sf_processed_packets += 1
 
         return rw_data
